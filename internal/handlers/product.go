@@ -5,46 +5,21 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/mtk14m/manomano/internal/models"
+	repositories "github.com/mtk14m/manomano/internal/repositories"
 )
 
-// Mock liste produits
-var productMockList = []models.Product{
-	{
-		ID:       1,
-		Name:     "Perceuse visseuse",
-		Price:    89.99,
-		Category: "outillage",
-		InStock:  true,
-	},
-	{
-		ID:       2,
-		Name:     "Aspirateur robot",
-		Price:    249.99,
-		Category: "électroménager",
-		InStock:  false,
-	},
-	{
-		ID:       3,
-		Name:     "Casque audio sans fil",
-		Price:    129.99,
-		Category: "high-tech",
-		InStock:  true,
-	},
-}
-
 type ProductHandler struct {
-	products []models.Product
+	repo *repositories.ProductRepository
 }
 
-func NewProductHandler() *ProductHandler {
+func NewProductHandler(repo *repositories.ProductRepository) *ProductHandler {
 	return &ProductHandler{
-		products: productMockList,
+		repo: repo,
 	}
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
-	c.JSON(http.StatusOK, h.products)
+	c.JSON(http.StatusOK, h.repo.GetAll())
 }
 
 func (h *ProductHandler) GetProductByID(c *gin.Context) {
@@ -56,14 +31,12 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 		return
 	}
 
-	for _, product := range h.products {
-		if product.ID == id {
-			c.JSON(http.StatusOK, product)
-			return
-		}
+	product, isProductFound := h.repo.GetByID(id)
+	if !isProductFound {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "product not found",
+		})
+	} else {
+		c.JSON(http.StatusOK, product)
 	}
-
-	c.JSON(http.StatusNotFound, gin.H{
-		"error": "product not found",
-	})
 }
