@@ -1,0 +1,44 @@
+package main
+
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mtk14m/manomano/internal/handlers"
+	"github.com/mtk14m/manomano/pkg/database"
+)
+
+func main() {
+	//init de la db
+	db, err := database.NewDB()
+	if err != nil {
+		log.Fatalf("ERROR-DB: %s", err.Error())
+	}
+	defer db.Close()
+
+	r := gin.Default()
+
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Ok, cool raoul",
+		})
+	})
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "Ok",
+		})
+	})
+
+	r.GET("/products", func(c *gin.Context) {
+		handlers.GetProducts(c)
+	})
+
+	r.GET("/products/:id", func(c *gin.Context) {
+		handlers.GetProductsById(c)
+	})
+
+	//on lance le server
+	log.Printf("App is running on port: 8000")
+	r.Run(":8000")
+}
