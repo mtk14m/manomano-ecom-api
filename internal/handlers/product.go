@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	repositories "github.com/mtk14m/manomano/internal/repositories"
+	"github.com/mtk14m/manomano/internal/repositories"
 )
 
 type ProductHandler struct {
@@ -19,7 +20,14 @@ func NewProductHandler(repo *repositories.ProductRepository) *ProductHandler {
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
-	c.JSON(http.StatusOK, h.repo.GetAll())
+	products, err := h.repo.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusOK, products)
 }
 
 func (h *ProductHandler) GetProductByID(c *gin.Context) {
@@ -31,11 +39,18 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 		return
 	}
 
-	product, isProductFound := h.repo.GetByID(id)
-	if !isProductFound {
-		c.JSON(http.StatusNotFound, gin.H{
-			"error": "product not found",
+	product, err := h.repo.GetByID(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{
+				"error": "product not found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
 		})
+
 	} else {
 		c.JSON(http.StatusOK, product)
 	}

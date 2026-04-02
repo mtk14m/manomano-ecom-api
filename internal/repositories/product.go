@@ -1,53 +1,56 @@
 package repositories
 
 import (
+	"database/sql"
+
 	"github.com/mtk14m/manomano/internal/models"
 )
 
 type ProductRepository struct {
-	products []models.Product
+	db *sql.DB
 }
 
-func NewProductRepository() *ProductRepository {
+func NewProductRepository(db *sql.DB) *ProductRepository {
 	return &ProductRepository{
-		products: productMockList,
+		db: db,
 	}
 }
 
-func (r *ProductRepository) GetAll() []models.Product {
-	return r.products
-}
+func (r *ProductRepository) GetAll() ([]models.Product, error) {
+	rows, err := r.db.Query("SELECT id, name, price, category, in_stock FROM products")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-func (r *ProductRepository) GetByID(id int) (models.Product, bool) {
-	for _, product := range r.products {
-		if product.ID == id {
-			return product, true
+	var products []models.Product
+
+	for rows.Next() {
+		var p models.Product
+		err := rows.Scan(&p.ID, &p.Name, &p.Price, &p.Category, &p.InStock)
+		if err != nil {
+			return nil, err
 		}
+		products = append(products, p)
 	}
-	return models.Product{}, false
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return products, nil
 }
 
-// Mock liste produits
-var productMockList = []models.Product{
-	{
-		ID:       1,
-		Name:     "Perceuse visseuse",
-		Price:    89.99,
-		Category: "outillage",
-		InStock:  true,
-	},
-	{
-		ID:       2,
-		Name:     "Aspirateur robot",
-		Price:    249.99,
-		Category: "électroménager",
-		InStock:  false,
-	},
-	{
-		ID:       3,
-		Name:     "Casque audio sans fil",
-		Price:    129.99,
-		Category: "high-tech",
-		InStock:  true,
-	},
+func (r *ProductRepository) GetByID(id int) (models.Product, error) {
+
+	var p models.Product
+
+	err := r.db.QueryRow(
+		"SELECT id, name, price, category, in_stock FROM products WHERE id = $1",
+		id,
+	).Scan(&p.ID, &p.Name, &p.Price, &p.Category, &p.InStock)
+
+	if err != nil {
+		return models.Product{}, err
+	}
+	return p, nil
 }

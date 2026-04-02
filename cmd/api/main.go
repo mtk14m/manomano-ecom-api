@@ -30,8 +30,8 @@ func main() {
 		})
 	})
 
-	//Création et injection des dépendance
-	productRepository := repositories.NewProductRepository()
+	//Création et injection des dépendances
+	productRepository := repositories.NewProductRepository(db)
 	productHandler := handlers.NewProductHandler(productRepository)
 	r.GET("/products", productHandler.GetProducts)
 	r.GET("/products/:id", productHandler.GetProductByID)
