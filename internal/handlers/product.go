@@ -33,11 +33,21 @@ var productMockList = []models.Product{
 	},
 }
 
-func GetProducts(c *gin.Context) {
-	c.JSON(http.StatusOK, productMockList)
+type ProductHandler struct {
+	products []models.Product
 }
 
-func GetProductsById(c *gin.Context) {
+func NewProductHandler() *ProductHandler {
+	return &ProductHandler{
+		products: productMockList,
+	}
+}
+
+func (h *ProductHandler) GetProducts(c *gin.Context) {
+	c.JSON(http.StatusOK, h.products)
+}
+
+func (h *ProductHandler) GetProductByID(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -46,9 +56,8 @@ func GetProductsById(c *gin.Context) {
 		return
 	}
 
-	for _, product := range productMockList {
+	for _, product := range h.products {
 		if product.ID == id {
-			//200
 			c.JSON(http.StatusOK, product)
 			return
 		}

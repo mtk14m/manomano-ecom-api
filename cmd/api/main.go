@@ -16,27 +16,23 @@ func main() {
 	}
 	defer db.Close()
 
+	//On init le router et handlers de base de l'apps
 	r := gin.Default()
-
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Ok, cool raoul",
 		})
 	})
-
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"status": "Ok",
+			"status": "ok",
 		})
 	})
 
-	r.GET("/products", func(c *gin.Context) {
-		handlers.GetProducts(c)
-	})
-
-	r.GET("/products/:id", func(c *gin.Context) {
-		handlers.GetProductsById(c)
-	})
+	//on peut définir un productHandler
+	productHandler := handlers.NewProductHandler()
+	r.GET("/products", productHandler.GetProducts)
+	r.GET("/products/:id", productHandler.GetProductByID)
 
 	//on lance le server et on check si erreur
 	log.Printf("App is running on port: 8000")
