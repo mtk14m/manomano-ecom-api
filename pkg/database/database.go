@@ -36,6 +36,11 @@ func NewDB() (*sql.DB, error) {
 		time.Sleep(2 * time.Second)
 	}
 
+	if err != nil {
+		db.Close()
+		return nil, err
+	}
+
 	return db, nil
 }
 

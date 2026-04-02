@@ -38,7 +38,10 @@ func main() {
 		handlers.GetProductsById(c)
 	})
 
-	//on lance le server
+	//on lance le server et on check si erreur
 	log.Printf("App is running on port: 8000")
-	r.Run(":8000")
+	if err = r.Run(":8000"); err != nil {
+		log.Fatalf("ERROR-HTTP: %v", err)
+	}
+
 }

@@ -9,27 +9,4 @@ type Product struct {
 }
 
 
-//Mock liste produits
-var ProductMockList []Product = []Product{
-		{
-			ID:       1,
-			Name:     "Perceuse visseuse",
-			Price:    89.99,
-			Category: "outillage",
-			InStock:  true,
-		},
-		{
-			ID:       2,
-			Name:     "Aspirateur robot",
-			Price:    249.99,
-			Category: "électroménager",
-			InStock:  false,
-		},
-		{
-			ID:       3,
-			Name:     "Casque audio sans fil",
-			Price:    129.99,
-			Category: "high-tech",
-			InStock:  true,
-		},
-}
+
