@@ -35,6 +35,7 @@ func main() {
 	productHandler := handlers.NewProductHandler(productRepository)
 	r.GET("/products", productHandler.GetProducts)
 	r.GET("/products/:id", productHandler.GetProductByID)
+	r.POST("/products", productHandler.CreateProduct)
 
 	//on lance le server et on check si erreur
 	log.Printf("App is running on port: 8000")

@@ -54,3 +54,29 @@ func (r *ProductRepository) GetByID(id int) (models.Product, error) {
 	}
 	return p, nil
 }
+
+func (r *ProductRepository) Create(p *models.Product) (models.Product, error) {
+
+	var createdProduct models.Product
+	err := r.db.QueryRow(
+		`INSERT INTO products (name, price, category, in_stock)
+		 VALUES ($1, $2, $3, $4)
+		 RETURNING id, name, price, category, in_stock`,
+		p.Name,
+		p.Price,
+		p.Category,
+		p.InStock,
+	).Scan(
+		&createdProduct.ID,
+		&createdProduct.Name,
+		&createdProduct.Price,
+		&createdProduct.Category,
+		&createdProduct.InStock,
+	)
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return createdProduct, nil
+}

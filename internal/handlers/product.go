@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mtk14m/manomano/internal/dtos"
 	"github.com/mtk14m/manomano/internal/repositories"
 )
 
@@ -54,4 +55,26 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, product)
 	}
+}
+
+func (h *ProductHandler) CreateProduct(c *gin.Context) {
+
+	var dto dtos.CreateProductDto
+
+	if err := c.ShouldBindJSON(&dto); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "invalid resquest payload",
+		})
+		return
+	}
+
+	product, err := h.repo.Create(&dto)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
+		return
+	}
+	c.JSON(http.StatusCreated, product)
 }
