@@ -55,7 +55,7 @@ func (r *ProductRepository) GetByID(id int) (models.Product, error) {
 	return p, nil
 }
 
-func (r *ProductRepository) Create(p *models.Product) (models.Product, error) {
+func (r *ProductRepository) Create(p models.Product) (models.Product, error) {
 
 	var createdProduct models.Product
 	err := r.db.QueryRow(
@@ -79,4 +79,30 @@ func (r *ProductRepository) Create(p *models.Product) (models.Product, error) {
 	}
 
 	return createdProduct, nil
+}
+
+func (r *ProductRepository) Update(id int, p models.Product) (models.Product, error) {
+	var updatedProduct models.Product
+
+	err := r.db.QueryRow(
+		`
+		UPDATE products
+		SET name=$1, price=$2, category=$3, in_stock=$4
+		WHERE id=$5
+		RETURNING id, name, price, category, in_stock
+		`,
+		p.Name, p.Price, p.Category, p.InStock, id,
+	).Scan(
+		&updatedProduct.ID,
+		&updatedProduct.Name,
+		&updatedProduct.Price,
+		&updatedProduct.Category,
+		&updatedProduct.InStock,
+	)
+
+	if err != nil {
+		return models.Product{}, err
+	}
+
+	return updatedProduct, nil
 }
