@@ -106,3 +106,22 @@ func (r *ProductRepository) Update(id int, p models.Product) (models.Product, er
 
 	return updatedProduct, nil
 }
+
+func (r *ProductRepository) Delete(id int) error {
+	result, err := r.db.Exec(
+		`DELETE FROM products WHERE id=$1`,
+		id,
+	)
+	if err != nil {
+		return err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}

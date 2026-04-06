@@ -37,6 +37,7 @@ func main() {
 	r.GET("/products/:id", productHandler.GetProductByID)
 	r.POST("/products", productHandler.CreateProduct)
 	r.PUT("/products/:id", productHandler.UpdateProduct)
+	r.DELETE("/products/:id", productHandler.DeleteProduct)
 
 	//on lance le server et on check si erreur
 	log.Printf("App is running on port: 8000")
