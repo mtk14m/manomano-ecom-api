@@ -12,21 +12,21 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/mtk14m/manomano/internal/dtos"
 	"github.com/mtk14m/manomano/internal/models"
-	"github.com/mtk14m/manomano/internal/repositories"
+	"github.com/mtk14m/manomano/internal/services"
 )
 
 type ProductHandler struct {
-	repo *repositories.ProductRepository
+	productService *services.ProductService
 }
 
-func NewProductHandler(repo *repositories.ProductRepository) *ProductHandler {
+func NewProductHandler(service *services.ProductService) *ProductHandler {
 	return &ProductHandler{
-		repo: repo,
+		productService: service,
 	}
 }
 
 func (h *ProductHandler) GetProducts(c *gin.Context) {
-	products, err := h.repo.GetAll()
+	products, err := h.productService.GetAllProducts()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal server error",
@@ -42,8 +42,8 @@ func (h *ProductHandler) GetProductByID(c *gin.Context) {
 		return
 	}
 
-	product, err := h.repo.GetByID(id)
-	if handleProductRepoError(c, err) {
+	product, err := h.productService.GetProductByID(id)
+	if handleRepoError(c, err) {
 		return
 	}
 
@@ -64,7 +64,7 @@ func (h *ProductHandler) CreateProduct(c *gin.Context) {
 		InStock:  dto.InStock,
 	}
 
-	product, err := h.repo.Create(p)
+	product, err := h.productService.CreateProduct(p)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal server error",
@@ -93,8 +93,8 @@ func (h *ProductHandler) UpdateProduct(c *gin.Context) {
 		InStock:  dto.InStock,
 	}
 
-	product, err := h.repo.Update(id, p)
-	if handleProductRepoError(c, err) {
+	product, err := h.productService.UpdateProduct(id, p)
+	if handleRepoError(c, err) {
 		return
 	}
 	c.JSON(http.StatusOK, product)
@@ -105,8 +105,8 @@ func (h *ProductHandler) DeleteProduct(c *gin.Context) {
 	if err != nil {
 		return
 	}
-	err = h.repo.Delete(id)
-	if handleProductRepoError(c, err) {
+	err = h.productService.DeleteProduct(id)
+	if handleRepoError(c, err) {
 		return
 	}
 
@@ -171,7 +171,7 @@ func parseProductID(c *gin.Context) (int, error) {
 	return id, nil
 }
 
-func handleProductRepoError(c *gin.Context, err error) bool {
+func handleRepoError(c *gin.Context, err error) bool {
 	if err == nil {
 		return false
 	}

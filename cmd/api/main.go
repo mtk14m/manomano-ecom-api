@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mtk14m/manomano/internal/handlers"
 	"github.com/mtk14m/manomano/internal/repositories"
+	"github.com/mtk14m/manomano/internal/services"
 	"github.com/mtk14m/manomano/pkg/database"
 )
 
@@ -32,7 +33,8 @@ func main() {
 
 	//Création et injection des dépendances
 	productRepository := repositories.NewProductRepository(db)
-	productHandler := handlers.NewProductHandler(productRepository)
+	productService:= services.NewProductService(productRepository)
+	productHandler := handlers.NewProductHandler(productService) 
 	r.GET("/products", productHandler.GetProducts)
 	r.GET("/products/:id", productHandler.GetProductByID)
 	r.POST("/products", productHandler.CreateProduct)
